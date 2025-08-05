@@ -24,3 +24,16 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.blog_post.title}"
+
+class Like(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')
+    blog_post = models.ForeignKey('BlogPost', on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'blog_post')  
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.blog_post.title}"
+
