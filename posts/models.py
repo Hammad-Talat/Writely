@@ -14,3 +14,13 @@ class BlogPost(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author.username}"
+
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
+    blog_post = models.ForeignKey('BlogPost', on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.blog_post.title}"
