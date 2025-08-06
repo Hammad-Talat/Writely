@@ -1,9 +1,14 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
+
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None, role='reader'):
+    def create_user(self, username, email, password=None, role="reader"):
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
@@ -13,16 +18,17 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password):
-        user = self.create_user(username, email, password, role='writer')
+        user = self.create_user(username, email, password, role="writer")
         user.is_superuser = True
         user.is_active = True
         user.save(using=self._db)
         return user
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = (
-        ('Writer', 'Writer'),
-        ('Reader', 'Reader'),
+        ("Writer", "Writer"),
+        ("Reader", "Reader"),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -34,8 +40,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
 
     def __str__(self):
         return f"{self.username} ({self.role})"
