@@ -15,3 +15,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             role=validated_data['role']
         )
+
+from rest_framework import serializers
+from .models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'date_joined']
+        read_only_fields = ['id', 'date_joined']
