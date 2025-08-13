@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body { margin: 0; background-color: #0a0a0a; color: white; }
+}
+
+@keyframes idleFloat {
+  0%   { transform: translate3d(0, calc(-1 * var(--amp, 6px)), 0) rotate(calc(-1 * var(--rot, .25deg))); opacity: .88; }
+  50%  { transform: translate3d(0, var(--amp, 6px), 0) rotate(var(--rot, .25deg)); opacity: .95; }
+  100% { transform: translate3d(0, calc(-1 * var(--amp, 6px)), 0) rotate(calc(-1 * var(--rot, .25deg))); opacity: .88; }
+}
+.floating-fixed {
+  animation-name: idleFloat;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  will-change: transform, opacity;
+}
