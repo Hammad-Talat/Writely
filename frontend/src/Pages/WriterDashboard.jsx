@@ -1,0 +1,152 @@
+// src/Pages/WriterDashboard.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { FaChartLine, FaEdit, FaNewspaper } from "react-icons/fa";
+import DashboardShell from "../components/DashboardShell";
+import Card from "../components/ui/card";
+import Section from "../components/ui/section";
+import BlogForm from "../components/BlogForm";
+import Feed from "../components/Feed";
+import {
+  listPosts, createPost, updatePost, deletePost,
+} from "../services/posts";
+
+export default function WriterDashboard() {
+  const user = useSelector(s => s.auth.user);
+  const [activeTab, setActiveTab] = useState("feed");
+
+  const [posts, setPosts] = useState([]);
+  const [ordering, setOrdering] = useState("-created_at");
+  const [editing, setEditing] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const tabs = [
+    { key: "overview", label: "Overview",   icon: <FaChartLine /> },
+    { key: "write",    label: "Write Post", icon: <FaEdit /> },
+    { key: "feed",     label: "Feed",       icon: <FaNewspaper /> },
+    { key: "posts",    label: "My Posts",   icon: <FaNewspaper /> },
+  ];
+
+  async function refreshMine() {
+    const p = await listPosts({ userId: user.id, ordering });
+    setPosts(p);
+  }
+  useEffect(() => { refreshMine(); /* eslint-disable-next-line */ }, [ordering]);
+
+  const totals = useMemo(() => {
+    const total = posts.length, published = posts.filter(p => p.is_published).length;
+    return { total, published, drafts: total - published };
+  }, [posts]);
+
+  async function handleCreateOrUpdate(body) {
+    setSubmitting(true);
+    try {
+      if (editing) {
+        await updatePost(editing.id, { ...body, tags: body.tags });
+        setEditing(null);
+      } else {
+        await createPost({ ...body, author: user.id });
+      }
+      await refreshMine();
+      setActiveTab("posts");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(postId) {
+    if (!confirm("Delete this post?")) return;
+    await deletePost(postId);
+    await refreshMine();
+  }
+
+  return (
+    <DashboardShell
+      brand="Writely"
+      user={user}
+      tabs={tabs}
+      activeTab={activeTab}
+      onChangeTab={setActiveTab}
+      onLogout={() => { /* add your logout dispatch + navigate */ }}
+    >
+      {activeTab === "overview" && (
+        <div className="space-y-8">
+          <header className="space-y-1">
+            <h1 className="text-2xl font-semibold">Writer Dashboard</h1>
+            <p className="text-sm text-white/70">Create, publish, and manage posts.</p>
+          </header>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card><div className="text-sm text-white/70">Total posts</div><div className="mt-1 text-3xl font-semibold">{totals.total}</div></Card>
+            <Card><div className="text-sm text-white/70">Published</div><div className="mt-1 text-3xl font-semibold">{totals.published}</div></Card>
+            <Card><div className="text-sm text-white/70">Drafts</div><div className="mt-1 text-3xl font-semibold">{totals.drafts}</div></Card>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "write" && (
+        <Card>
+          <Section title={editing ? "Edit post" : "Write a new post"} subtitle="Title, content, tags, and a publish toggle." />
+          <BlogForm initial={editing} onSubmit={handleCreateOrUpdate} submitting={submitting} />
+        </Card>
+      )}
+
+      {activeTab === "feed" && (
+        <Feed
+          currentUser={user}
+          writerExtras
+          onEditPost={(post) => { setEditing(post); setActiveTab("write"); }}
+          onDeletePost={handleDelete}
+          showOnlyPublished
+        />
+      )}
+
+      {activeTab === "posts" && (
+        <div className="space-y-4">
+          <Section
+            title="My posts"
+            right={
+              <div className="flex gap-2">
+                <select value={ordering} onChange={(e) => setOrdering(e.target.value)}
+                  className="rounded-lg bg-white/10 px-3 py-2 text-white outline-none ring-1 ring-white/10">
+                  <option value="-created_at">Newest</option>
+                  <option value="created_at">Oldest</option>
+                  <option value="title">Title A→Z</option>
+                </select>
+              </div>
+            }
+          />
+          <div className="grid gap-3 md:grid-cols-2">
+            {posts.map(p => (
+              <Card key={p.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-medium">{p.title}</div>
+                    <div className="text-xs text-white/60">Created {new Date(p.created_at).toLocaleString()}</div>
+                    {Array.isArray(p.tags) && p.tags.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {p.tags.map((t, i) => <span key={i} className="text-[11px] rounded-full bg-white/10 px-2 py-0.5 ring-1 ring-white/10">{t}</span>)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="shrink-0 flex gap-2">
+                    <button onClick={() => { setEditing(p); setActiveTab("write"); }}
+                      className="rounded-lg bg-white/10 px-3 py-1 ring-1 ring-white/10 hover:bg-white/15">Edit</button>
+                    <button onClick={() => handleDelete(p.id)}
+                      className="rounded-lg bg-red-500/90 px-3 py-1 hover:bg-red-500 text-white">Delete</button>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs">
+                  <span className={`px-2 py-0.5 rounded-full ring-1 ${p.is_published ? "bg-emerald-400/20 ring-emerald-400/40 text-emerald-300" : "bg-yellow-400/20 ring-yellow-400/40 text-yellow-300"}`}>
+                    {p.is_published ? "Published" : "Draft"}
+                  </span>
+                </div>
+              </Card>
+            ))}
+            {posts.length === 0 && <Card className="text-white/60">No posts yet.</Card>}
+          </div>
+        </div>
+      )}
+    </DashboardShell>
+  );
+}
