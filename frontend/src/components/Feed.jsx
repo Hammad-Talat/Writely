@@ -1,4 +1,3 @@
-// src/components/Feed.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { FaHeart, FaEdit, FaTrash } from "react-icons/fa";
@@ -11,10 +10,11 @@ import {
 
 export default function Feed({
   currentUser,
-  writerExtras = false,        // shows edit/delete on own posts
-  onEditPost,                  // function(post) -> void (optional)
-  onDeletePost,                // function(postId) -> Promise (optional)
-  showOnlyPublished = true,    // feed hides drafts by default
+  writerExtras = false,
+  onEditPost,
+  onDeletePost,
+  showOnlyPublished = true,
+  refreshVersion,
 }) {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -43,7 +43,7 @@ export default function Feed({
     setLoading(false);
   }
 
-  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [ordering]);
+  useEffect(() => { refresh(); }, [ordering,refreshVersion]);
 
   // Helper maps/sets
   const likedByMeSet = useMemo(() => new Set(likesMine.map(x => x.blog_post)), [likesMine]);

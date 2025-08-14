@@ -19,6 +19,7 @@ export default function WriterDashboard() {
   const [ordering, setOrdering] = useState("-created_at");
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [feedVersion, setFeedVersion] = useState(0);
 
   const tabs = [
     { key: "overview", label: "Overview",   icon: <FaChartLine /> },
@@ -28,10 +29,14 @@ export default function WriterDashboard() {
   ];
 
   async function refreshMine() {
-    const p = await listPosts({ userId: user.id, ordering });
+        if (!user?.id) return;                         
+  const p = await listPosts({ userId: user.id, ordering });
     setPosts(p);
   }
-  useEffect(() => { refreshMine(); /* eslint-disable-next-line */ }, [ordering]);
+ useEffect(() => { refreshMine(); }, [ordering, user?.id]);
+ if (!user) {
+ return <div className="p-6 text-white/80">Loading account…</div>;
+ }
 
   const totals = useMemo(() => {
     const total = posts.length, published = posts.filter(p => p.is_published).length;
@@ -55,9 +60,15 @@ export default function WriterDashboard() {
   }
 
   async function handleDelete(postId) {
-    if (!confirm("Delete this post?")) return;
-    await deletePost(postId);
-    await refreshMine();
+     if (!confirm("Delete this post?")) return;
+ const prev = posts;
+  setPosts((ps) => ps.filter((p) => p.id !== postId));
+  try {
+    await deletePost(postId);     
+     setFeedVersion((v) => v + 1);           
+  } catch (e) {
+    setPosts(prev);
+  }
   }
 
   return (
@@ -98,6 +109,8 @@ export default function WriterDashboard() {
           onEditPost={(post) => { setEditing(post); setActiveTab("write"); }}
           onDeletePost={handleDelete}
           showOnlyPublished
+          refreshVersion={feedVersion}
+
         />
       )}
 

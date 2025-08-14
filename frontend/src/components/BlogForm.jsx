@@ -37,8 +37,7 @@ export default function BlogForm({ initial = null, onSubmit, submitting }) {
         />
       </label>
 
-      <label className="grid gap-1">
-        <span className="text-sm text-white/70">Content</span>
+        <label className="mb-1 block text-sm text-white/70">Content</label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -46,7 +45,6 @@ export default function BlogForm({ initial = null, onSubmit, submitting }) {
           placeholder="Write your story…"
           className="rounded-lg bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
         />
-      </label>
 
       <label className="grid gap-1">
         <span className="text-sm text-white/70">Tags (comma separated)</span>

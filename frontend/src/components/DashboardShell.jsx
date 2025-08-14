@@ -8,7 +8,6 @@ export default function DashboardShell({ brand="Writely", user, tabs, activeTab,
 
   return (
     <div className="min-h-screen text-white font-sans bg-gradient-to-tr from-gray-900 via-black to-gray-800">
-      {/* Sidebar */}
       <aside className="w-16 sm:w-20 md:w-64 fixed top-0 left-0 h-full bg-white/10 backdrop-blur-xl shadow-xl p-3 sm:p-4 md:p-6 space-y-4 z-40">
         <h1 className="text-xl md:text-2xl font-bold hidden sm:block">{brand}</h1>
         <nav className="space-y-2">
@@ -26,9 +25,7 @@ export default function DashboardShell({ brand="Writely", user, tabs, activeTab,
         </nav>
       </aside>
 
-      {/* Content */}
       <div className="ml-16 sm:ml-20 md:ml-64 p-4 sm:p-6">
-        {/* Top-right profile */}
         <div className="flex justify-end">
           <div className="relative">
             <button onClick={() => setDropdownOpen(v => !v)}
@@ -58,7 +55,6 @@ export default function DashboardShell({ brand="Writely", user, tabs, activeTab,
         <div className="mt-6">{children}</div>
       </div>
 
-      {/* Profile Dialog */}
       <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} className="fixed inset-0 z-50">
         <div className="flex items-center justify-center min-h-screen p-4 bg-black/40 backdrop-blur-sm">
           <Dialog.Panel className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md ring-1 ring-white/20">

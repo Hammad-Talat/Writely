@@ -1,5 +1,5 @@
 import api, { ENDPOINTS } from "./api";
-import {jwtDecode } from "jwt-decode";
+import {jwtDecode}  from "jwt-decode";
 import { setTokens, clearTokens, getAccessToken } from "./tokenStorage";
 
 export async function register({ username, email, password, role }) {
@@ -9,9 +9,10 @@ export async function register({ username, email, password, role }) {
 }
 
 export async function login({ username, password }) {
-  const { data } = await api.post(ENDPOINTS.LOGIN, { username, password });
-  setTokens({ access: data.access, refresh: data.refresh });
-  return await loadCurrentUser();
+  const { data: tokens } = await api.post(ENDPOINTS.LOGIN, { username, password });
+  setTokens({ access: tokens.access, refresh: tokens.refresh });
+  const user = await loadCurrentUser();
+  return { user, access: tokens.access, refresh: tokens.refresh };
 }
 
 export async function loadCurrentUser() {
