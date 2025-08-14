@@ -1,5 +1,4 @@
-// src/Pages/WriterDashboard.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState  } from "react";
 import { useSelector } from "react-redux";
 import { FaChartLine, FaEdit, FaNewspaper } from "react-icons/fa";
 import DashboardShell from "../components/DashboardShell";
@@ -8,6 +7,8 @@ import BlogForm from "../components/BlogForm";
 import Feed from "../components/Feed";
 import { listPosts, createPost, updatePost, deletePost } from "../services/posts";
 import Select from "../components/ui/Select";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function WriterDashboard() {
   const user = useSelector((s) => s.auth.user);
@@ -78,8 +79,7 @@ export default function WriterDashboard() {
       tabs={tabs}
       activeTab={activeTab}
       onChangeTab={setActiveTab}
-      onLogout={() => {
-      }}
+      onLogout={handleLogout}
     >
       {activeTab === "overview" && (
         <div className="space-y-8">
