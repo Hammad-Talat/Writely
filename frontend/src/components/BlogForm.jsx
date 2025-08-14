@@ -51,8 +51,6 @@ export default function BlogForm({ initial = null, onSubmit, submitting = false 
         />
       </div>
 
-      {/* Content */}
-      <div>
         <label className="mb-1 block text-sm text-white/70">Content</label>
         <textarea
           name="content"
@@ -63,7 +61,6 @@ export default function BlogForm({ initial = null, onSubmit, submitting = false 
           className="w-full resize-y rounded-xl bg-white/10 px-4 py-3 text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
           required
         />
-      </div>
 
       <div>
         <label className="mb-1 block text-sm text-white/70">Tags (comma separated)</label>

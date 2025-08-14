@@ -1,4 +1,3 @@
-// src/components/Feed.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { FaHeart, FaEdit, FaTrash } from "react-icons/fa";
 import Card from "./ui/card";
@@ -14,6 +13,7 @@ export default function Feed({
   onEditPost,
   onDeletePost,
   showOnlyPublished = true,
+  refreshVersion,
 }) {
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -42,7 +42,7 @@ export default function Feed({
     setLoading(false);
   }
 
-  useEffect(() => { refresh(); }, [ordering]);
+  useEffect(() => { refresh(); }, [ordering,refreshVersion]);
 
   const likedByMeSet = useMemo(() => new Set(likesMine.map(x => x.blog_post)), [likesMine]);
   const likeIdByPost = useMemo(() => {
