@@ -1,70 +1,96 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-export default function BlogForm({ initial = null, onSubmit, submitting }) {
-  const [title, setTitle] = useState(initial?.title || "");
-  const [content, setContent] = useState(initial?.content || "");
-  const [tagsInput, setTagsInput] = useState(Array.isArray(initial?.tags) ? initial.tags.join(", ") : "");
-  const [isPublished, setIsPublished] = useState(!!initial?.is_published);
+export default function BlogForm({ initial = null, onSubmit, submitting = false }) {
+  const [form, setForm] = useState({
+    title: "",
+    content: "",
+    tags: "",
+    is_published: false,
+  });
 
   useEffect(() => {
     if (!initial) return;
-    setTitle(initial.title || "");
-    setContent(initial.content || "");
-    setTagsInput(Array.isArray(initial.tags) ? initial.tags.join(", ") : "");
-    setIsPublished(!!initial.is_published);
+    setForm({
+      title: initial.title || "",
+      content: initial.content || "",
+      tags: Array.isArray(initial.tags) ? initial.tags.join(", ") : (initial.tags || ""),
+      is_published: !!initial.is_published,
+    });
   }, [initial]);
 
-  const tags = useMemo(() => {
-    const arr = tagsInput.split(",").map(t => t.trim()).filter(Boolean);
-    return arr.length ? arr : null;
-  }, [tagsInput]);
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+  }
 
-  function handleSubmit(e) {
+  function submit(e) {
     e.preventDefault();
-    if (!title.trim()) return;
-    onSubmit({ title: title.trim(), content, tags, is_published: isPublished });
+    const tags = form.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    onSubmit({
+      title: form.title,
+      content: form.content,
+      tags,
+      is_published: form.is_published,
+    });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-3">
-      <label className="grid gap-1">
-        <span className="text-sm text-white/70">Title</span>
+    <form onSubmit={submit} className="mx-auto w-full max-w-4xl space-y-5 px-4 sm:px-6">
+      <div>
+        <label className="mb-1 block text-sm text-white/70">Title</label>
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          name="title"
+          value={form.title}
+          onChange={handleChange}
           placeholder="Amazing post title"
-          className="rounded-lg bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
+          className="w-full rounded-xl bg-white/10 px-4 py-2.5 text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
+          required
         />
-      </label>
+      </div>
 
         <label className="mb-1 block text-sm text-white/70">Content</label>
         <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={12}
-          placeholder="Write your story…"
-          className="rounded-lg bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
+          name="content"
+          value={form.content}
+          onChange={handleChange}
+          rows={14}
+          placeholder="Write your story..."
+          className="w-full resize-y rounded-xl bg-white/10 px-4 py-3 text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
+          required
         />
 
-      <label className="grid gap-1">
-        <span className="text-sm text-white/70">Tags (comma separated)</span>
+      <div>
+        <label className="mb-1 block text-sm text-white/70">Tags (comma separated)</label>
         <input
-          value={tagsInput}
-          onChange={(e) => setTagsInput(e.target.value)}
+          name="tags"
+          value={form.tags}
+          onChange={handleChange}
           placeholder="react, django, life"
-          className="rounded-lg bg-white/10 px-3 py-2 text-white placeholder-white/40 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
+          className="w-full rounded-xl bg-white/10 px-4 py-2.5 text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-white/30"
         />
-      </label>
+      </div>
 
-      <label className="inline-flex items-center gap-2">
-        <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} />
-        <span className="text-sm text-white/80">Publish now</span>
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 text-sm text-white/80">
+          <input
+            type="checkbox"
+            name="is_published"
+            checked={form.is_published}
+            onChange={handleChange}
+            className="size-4 accent-white"
+          />
+          Publish now
+        </label>
 
-      <div className="flex justify-end gap-2">
-        <button type="submit" disabled={submitting}
-          className="rounded-xl bg-white px-4 py-2 font-medium text-neutral-950 disabled:opacity-60">
-          {initial ? (submitting ? "Saving…" : "Save changes") : (submitting ? "Publishing…" : "Create post")}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="rounded-xl bg-white px-5 py-2 font-medium text-neutral-900 shadow hover:shadow-md disabled:opacity-60"
+        >
+          {submitting ? "Saving…" : initial ? "Update post" : "Create post"}
         </button>
       </div>
     </form>
