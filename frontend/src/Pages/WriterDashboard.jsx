@@ -9,6 +9,8 @@ import { listPosts, createPost, updatePost, deletePost } from "../services/posts
 import Select from "../components/ui/Select";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { logout as logoutAction } from "../store/authSlice";
+import { logout as apiLogout } from "../services/auth";
 
 export default function WriterDashboard() {
   const user = useSelector((s) => s.auth.user);
@@ -19,6 +21,8 @@ export default function WriterDashboard() {
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [feedVersion, setFeedVersion] = useState(0);
+    const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const tabs = [
     { key: "overview", label: "Overview", icon: <FaChartLine /> },
@@ -26,6 +30,14 @@ export default function WriterDashboard() {
     { key: "feed", label: "Feed", icon: <FaNewspaper /> },
     { key: "posts", label: "My Posts", icon: <FaNewspaper /> },
   ];
+   const handleLogout = async () => {
+   try {
+     dispatch(logoutAction());   
+     await apiLogout();          
+   } finally {
+     navigate("/login", { replace: true });
+   }
+ };
 
   async function refreshMine() {
         if (!user?.id) return;                         
