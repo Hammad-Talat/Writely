@@ -1,4 +1,3 @@
-// src/Pages/ReaderDashboard.jsx
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { FaNewspaper } from "react-icons/fa";
@@ -6,6 +5,9 @@ import DashboardShell from "../components/DashboardShell";
 import Feed from "../components/Feed";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { logout as logoutAction } from "../store/authSlice";
+import { logout as apiLogout } from "../services/auth";
+
 
 export default function ReaderDashboard() {
   const user = useSelector(s => s.auth.user);
